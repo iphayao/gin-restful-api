@@ -1,6 +1,5 @@
-FROM golang:1.15.4-alpine3.12 as build_base
-
-RUN apk add --no-cache git
+# Start from golang alpine base image
+FROM golang:alpine as builder
 
 # Set the current working directory
 WORKDIR /build
@@ -9,6 +8,7 @@ WORKDIR /build
 COPY go.mod .
 COPY go.sum .
 
+# Download all dependencies, will be catch if go.mod and go.sum file not changed
 RUN go mod download
 
 # Copy everything from current direcotyr to PWD
@@ -16,16 +16,18 @@ COPY . .
 
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o app .
 
-# Start fresh from a smaller image
+# Start new stage from scatch for a smaller image
 FROM alpine:latest
+
 RUN apk --no-cache add ca-certificates
 
 WORKDIR /root/
 
-COPY --from=build_base /build/app .
+# Copy Pre-built binary file from previous stage
+COPY --from=builder /build/app .
 
-# This container expose port 8080 to outside
+# Expose port 8080 to outside
 EXPOSE 8080
 
-# RUn the binary application
+# Run the binary application
 CMD ["./app"]

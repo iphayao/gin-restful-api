@@ -42,7 +42,7 @@ func setupRouter() *gin.Engine {
 }
 
 func (h *CustomerHandler) Initialize() {
-	db, err := gorm.Open("mysql", "webservice:P@ssw0rd@tcp(postgres-svc:3306)/db_webservice?charset=utf8&parseTime=True")
+	db, err := gorm.Open("mysql", "webservice:P@ssw0rd@tcp(mysql-svc:3306)/db_webservice?charset=utf8&parseTime=True")
 	if err != nil {
 		log.Fatal(err)
 	}
